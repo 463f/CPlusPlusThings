@@ -59,7 +59,7 @@ int main(){
 
 ```cpp
 // extern_file1.cpp
-extern const int ext=12;
+extern const int ext=12; // 必须进行 extern 声明！
 // extern_file2.cpp
 #include<iostream>
 extern const int ext;
@@ -98,7 +98,7 @@ const char * const a; // 指向const对象的const指针。
 > 如果*const*位于`*`的左侧，则const就是用来修饰指针所指向的变量，即指针指向为常量；<br>如果const位于`*`的右侧，*const*就是修饰指针本身，即指针本身是常量。
 
 **另一种解读方式**<br>
-利用英文从右边往左边读，并且以to为分界，to之前为描述指针的特性，to之后为描述目标的特性<br>
+**将代码从右边往左边翻译为英文**，并且以to为分界，to之前为描述指针的特性，to之后为描述目标的特性<br>
 ```c++
 const char * p; //p is a pointer to const char
 char const * p; //同上
@@ -120,7 +120,7 @@ const int *ptr;
 
 ptr是一个指向int类型const对象的指针，const定义的是int类型，也就是ptr所指向的对象类型，而不是ptr本身，所以ptr可以不用赋初始值。但是不能通过ptr去修改所指对象的值。
 
-除此之外，也不能使用void`*`指针保存const对象的地址，必须使用const void`*`类型的指针保存const对象的地址。
+除此之外，也不能使用`void *`指针保存const对象的地址，必须使用`const void *`类型的指针保存const对象的地址。
 
 ```c++
 const int p = 10;
@@ -148,9 +148,9 @@ int *ptr1 = &val;
 cout<<*ptr<<endl;
 ```
 
-> 小结：<br>1.对于指向常量的指针，不能通过指针来修改对象的值。<br>2.不能使用void`*`指针保存const对象的地址，必须使用const void`*`类型的指针保存const对象的地址。<br>3.允许把非const对象的地址赋值给const对象的指针，如果要修改指针所指向的对象值，必须通过其他方式修改，不能直接通过当前指针直接修改。
+> 小结：<br>1.对于指向常量的指针，不能通过指针来修改对象的值。<br>2.不能使用`void *`指针保存const对象的地址，必须使用`const void *`类型的指针保存const对象的地址。<br>3.允许把非const对象的地址赋值给const对象的指针，如果要修改指针所指向的对象值，必须通过其他方式修改，不能直接通过当前指针直接修改。
 
-（2） **常指针**
+（2） **常指针（const 指针）**
 
 const指针必须进行初始化，且const指针指向的值能修改，但指向不能修改。
 
@@ -246,7 +246,7 @@ void func(int *const var); // 指针本身不可变
 
 表明参数在函数体内不能被修改，但此处没有任何意义，var本身就是形参，在函数内不会改变。包括传入的形参是指针也是一样。
 
-输入参数采用“值传递”，由于函数将自动产生临时变量用于复制该参数，该输入参数本来就无需保护，所以不要加const 修饰。
+**输入参数采用“值传递”，由于函数将自动产生临时变量用于复制该参数，该输入参数本来就无需保护，所以不要加 const 修饰**。
 
 （2）**参数指针所指内容为常量不可变**
 
@@ -267,7 +267,7 @@ void func(const A &a)
 为了提高效率，可以将函数声明改为void func(A &a)，因为“引用传递”仅借用一下参数的别名而已，不需要产生临
 时对象。
 
-> 但是函数void func(A &a) 存在一个缺点：<br><br>“引用传递”有可能改变参数a，这是我们不期望的。解决这个问题很容易，加const修饰即可，因此函数最终成为
+> 但是函数void func(A &a) 存在一个缺点：<br><br>“引用传递”有可能在函数内改变参数a，这是我们不期望的。解决这个问题很容易，加const修饰即可，因此函数最终成为
 void func(const A &a)。
 
 以此类推，是否应将void func(int x) 改写为void func(const int &x)，以便提高效率？完全没有必要，因为内部数据类型的参数不存在构造、析构的过程，而复制也非常快，“值传递”和“引用传递”的效率几乎相当。
@@ -281,9 +281,11 @@ void func(const A &a)。
 
 ## 7.类中使用const
 
-在一个类中，任何不会修改数据成员的函数都应该声明为const类型。如果在编写const成员函数时，不慎修改 数据成员，或者调用了其它非const成员函数，编译器将指出错误，这无疑会提高程序的健壮性。
+在一个类中，**任何不会修改数据成员的函数都应该声明为const类型**。如果在编写const成员函数时，不慎修改 数据成员，或者调用了其它非const成员函数，编译器将指出错误，这无疑会提高程序的健壮性。
 
-使用const关键字进行说明的成员函数，称为常成员函数。只有常成员函数才有资格操作常量或常对象，没有使用const关键字进行说明的成员函数不能用来操作常对象。
+使用const关键字进行说明的成员函数，称为常成员函数。**只有常成员函数才有资格操作常量或常对象**，没有使用const关键字进行说明的成员函数不能用来操作常对象。
+
+>const对象的this指针：const指针→指向常量的const指针，因此“普通成员函数的this指针”没法被“const对象的this指针初始化”
 
 对于类中的const成员变量必须通过初始化列表进行初始化，如下所示：
 
@@ -302,7 +304,7 @@ Apple::Apple(int i):apple_number(i)
 }
 ```
 
-const对象只能访问const成员函数,而非const对象可以访问任意的成员函数,包括const成员函数.
+**const对象只能访问const成员函数**,而非const对象可以访问任意的成员函数,包括const成员函数.
 
 例如：
 
@@ -316,8 +318,8 @@ public:
     Apple(int i); 
     const int apple_number;
     void take(int num) const;
-    int add();
-    int add(int num) const;
+    int add(int num);
+    // int add(int num) const; // 模拟报错
     int getCount() const;
 
 };
@@ -330,11 +332,12 @@ int Apple::add(int num)
     take(num);
     return 0;
 }
-int Apple::add(int num) const
-{
-    take(num);
-    return 0;
-}
+// 为了模拟报错，需要注释该函数
+// int Apple::add(int num) const
+// {
+//     take(num);
+//     return 0;
+// }
 void Apple::take(int num) const
 {
     std::cout << "take func " << num << std::endl;
@@ -342,23 +345,23 @@ void Apple::take(int num) const
 int Apple::getCount() const
 {
     take(1);
-    //    add(); // error
+    add(1); // error
     return apple_number;
 }
 int main()
 {
     Apple a(2);
-    cout << a.getCount() << endl;
+    a.getCount(); // error
     a.add(10);
     const Apple b(3);
-    b.add(100);
+    b.add(100); // error
     return 0;
 }
 // main.cpp
 ```
 > 编译：bazel run basic_content/const/class_const/first_example:main<br>
 
-此时报错，上面getCount()方法中调用了一个add方法，而add方法并非const修饰，所以运行报错。也就是说const成员函数只能访问const成员函数。
+此时报错，上面getCount()方法中调用了一个add方法，而add方法并非const修饰，所以运行报错。也就是说：**const成员函数只能访问const成员函数**。
 
 当调用改为：
 
@@ -396,7 +399,7 @@ const int apple_number=10;
 
 这里提到了static，下面简单的说一下：
 
-在C++中，static静态成员变量不能在类的内部初始化。在类的内部只是声明，定义必须在类定义体的外部，通常在类的实现文件中初始化。
+在C++中，**static静态成员变量不能在类的内部初始化。在类的内部只是声明，定义必须在类定义体的外部**，通常在类的实现文件中初始化。
 
 在类中声明：
 

@@ -4,9 +4,10 @@ using namespace std;
 
 int main() {
   Apple a(2);
-  cout << a.getCount() << endl;
+  a.getCount(); // error
   a.add(10);
+  
   const Apple b(3);
-  b.add(100);
+  b.add(100); // error
   return 0;
 }
